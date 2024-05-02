@@ -65,6 +65,10 @@ func getFirstDigitSecondHalf(line string, numbers []string) *int {
 		} else {
 			found := false
 			for _, indexNumber := range possibilitiesIndexes {
+				if len(numberString) >= len(numbers[indexNumber]) {
+					continue
+				}
+
 				if numbers[indexNumber][len(numberString)] == byte(value) {
 					numberString += string(value)
 					if numberString == numbers[indexNumber] {
@@ -121,14 +125,25 @@ func getLastDigitSecondHalf(line string, numbers []string) *int {
 
 		if possibilitiesIndexes == nil {
 			for index, number := range numbers {
-				if number[len(number)-len(numberString)] == byte(line[i]) {
-					numberString += string(line[i])
-					possibilitiesIndexes = append(possibilitiesIndexes, index)
+				if numberString == "" {
+					if number[len(number)-len(numberString)-1] == byte(line[i]) {
+						numberString += string(line[i])
+						possibilitiesIndexes = append(possibilitiesIndexes, index)
+					}
+				} else {
+					if number[len(number)-len(numberString)] == byte(line[i]) {
+						numberString += string(line[i])
+						possibilitiesIndexes = append(possibilitiesIndexes, index)
+					}
 				}
 			}
 		} else {
 			found := false
 			for _, indexNumber := range possibilitiesIndexes {
+				if len(numbers[indexNumber])-len(numberString) < 0 {
+					continue
+				}
+
 				if numbers[indexNumber][len(numbers[indexNumber])-len(numberString)] == byte(line[i]) {
 					numberString += string(line[i])
 					if numberString == numbers[indexNumber] {
@@ -173,15 +188,25 @@ func getLastDigitSecondHalf(line string, numbers []string) *int {
 	return nil
 }
 
-func main() {
-	fileInput := helpers.GetInput("./inputl.txt")
+func solveSecondHalf(fileInput, numbers []string) int {
+	sum := 0
 
-	fmt.Println(solveFirstHalf(fileInput))
+	for _, line := range fileInput {
+		firstDigit := *getFirstDigitSecondHalf(line, numbers)
+		lastDigit := *getLastDigitSecondHalf(line, numbers)
+		num := twoNumToDecimal(firstDigit, lastDigit)
+		sum += num
+	}
+
+	return sum
+}
+
+func main() {
+	fileInput := helpers.GetInput("./input.txt")
+
+	fmt.Println("First half answer: ", solveFirstHalf(fileInput))
 
 	numbers := []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
 
-	for _, line := range fileInput {
-		fmt.Println(*getFirstDigitSecondHalf(line, numbers))
-		fmt.Println(*getLastDigitSecondHalf(line, numbers))
-	}
+	fmt.Println("Second half answer: ", solveSecondHalf(fileInput, numbers))
 }
