@@ -1,11 +1,13 @@
 package main
 
+// Imports
 import (
 	"adventOfCode/helpers"
 	"fmt"
 	"strconv"
 )
 
+// Get first digit of the string - only numeric
 func getFirstDigitFirstHalf(line string) *int {
 	for _, value := range line {
 		digit, err := strconv.Atoi(string(value))
@@ -17,6 +19,7 @@ func getFirstDigitFirstHalf(line string) *int {
 	return nil
 }
 
+// Get last digit of the string - only numeric
 func getLastDigitFirstHalf(line string) *int {
 	for i := len(line) - 1; i > -1; i-- {
 		digit, err := strconv.Atoi(string(line[i]))
@@ -28,10 +31,12 @@ func getLastDigitFirstHalf(line string) *int {
 	return nil
 }
 
+// Take two integers (ones, tens) and return the proper integer combined (5, 7 => 57)
 func twoNumToDecimal(first, second int) int {
 	return first*10 + second
 }
 
+// Solve first part of day 1
 func solveFirstHalf(fileInput []string) int {
 	sum := 0
 
@@ -45,8 +50,8 @@ func solveFirstHalf(fileInput []string) int {
 	return sum
 }
 
+// Get first digit doesn't matter if numeric or text (5, 'five')
 func getFirstDigitSecondHalf(line string, numbers []string) *int {
-	var numberString string
 	var possibilitiesIndexes []int
 
 	for i, value := range line {
@@ -57,21 +62,17 @@ func getFirstDigitSecondHalf(line string, numbers []string) *int {
 
 		if possibilitiesIndexes == nil {
 			for index, number := range numbers {
-				if number[len(numberString)] == byte(value) {
-					numberString += string(value)
+				if number[0] == byte(value) {
 					possibilitiesIndexes = append(possibilitiesIndexes, index)
 				}
 			}
-		} else {
-			found := false
-			for _, indexNumber := range possibilitiesIndexes {
-				if len(numberString) >= len(numbers[indexNumber]) {
-					continue
-				}
-
-				if numbers[indexNumber][len(numberString)] == byte(value) {
-					numberString += string(value)
-					if numberString == numbers[indexNumber] {
+		}
+		for posIndex := 0; posIndex < len(possibilitiesIndexes); posIndex++ {
+			numberString := string(line[i])
+			for letterIndex := 0; letterIndex < len(numbers[possibilitiesIndexes[posIndex]]); letterIndex++ {
+				if line[i+len(numberString)] == numbers[possibilitiesIndexes[posIndex]][len(numberString)] {
+					numberString += string(line[i+len(numberString)])
+					if numberString == numbers[possibilitiesIndexes[posIndex]] {
 						var numToReturn int
 						switch numberString {
 						case "one":
@@ -96,25 +97,18 @@ func getFirstDigitSecondHalf(line string, numbers []string) *int {
 
 						return &numToReturn
 					}
-
-					possibilitiesIndexes = []int{indexNumber}
-					found = true
+				} else {
 					break
 				}
 			}
-
-			if !found {
-				numberString = ""
-				possibilitiesIndexes = nil
-				i--
-			}
 		}
+		possibilitiesIndexes = nil
 	}
 	return nil
 }
 
+// Get last digit doesn't matter if numeric or text (5, 'five')
 func getLastDigitSecondHalf(line string, numbers []string) *int {
-	var numberString string
 	var possibilitiesIndexes []int
 
 	for i := len(line) - 1; i > -1; i-- {
@@ -125,28 +119,17 @@ func getLastDigitSecondHalf(line string, numbers []string) *int {
 
 		if possibilitiesIndexes == nil {
 			for index, number := range numbers {
-				if numberString == "" {
-					if number[len(number)-len(numberString)-1] == byte(line[i]) {
-						numberString += string(line[i])
-						possibilitiesIndexes = append(possibilitiesIndexes, index)
-					}
-				} else {
-					if number[len(number)-len(numberString)] == byte(line[i]) {
-						numberString += string(line[i])
-						possibilitiesIndexes = append(possibilitiesIndexes, index)
-					}
+				if number[len(number)-1] == byte(line[i]) {
+					possibilitiesIndexes = append(possibilitiesIndexes, index)
 				}
 			}
-		} else {
-			found := false
-			for _, indexNumber := range possibilitiesIndexes {
-				if len(numbers[indexNumber])-len(numberString) < 0 {
-					continue
-				}
-
-				if numbers[indexNumber][len(numbers[indexNumber])-len(numberString)] == byte(line[i]) {
-					numberString += string(line[i])
-					if numberString == numbers[indexNumber] {
+		}
+		for posIndex := 0; posIndex < len(possibilitiesIndexes); posIndex++ {
+			numberString := string(line[i])
+			for letterIndex := len(numbers[possibilitiesIndexes[posIndex]]); letterIndex > -1; letterIndex-- {
+				if line[i-len(numberString)] == numbers[possibilitiesIndexes[posIndex]][len(numbers[possibilitiesIndexes[posIndex]])-len(numberString)-1] {
+					numberString = string(line[i-len(numberString)]) + numberString
+					if numberString == numbers[possibilitiesIndexes[posIndex]] {
 						var numToReturn int
 						switch numberString {
 						case "one":
@@ -171,23 +154,17 @@ func getLastDigitSecondHalf(line string, numbers []string) *int {
 
 						return &numToReturn
 					}
-
-					possibilitiesIndexes = []int{indexNumber}
-					found = true
+				} else {
 					break
 				}
 			}
-
-			if !found {
-				numberString = ""
-				possibilitiesIndexes = nil
-				i++
-			}
 		}
+		possibilitiesIndexes = nil
 	}
 	return nil
 }
 
+// Solve second part of day 1
 func solveSecondHalf(fileInput, numbers []string) int {
 	sum := 0
 
@@ -201,6 +178,7 @@ func solveSecondHalf(fileInput, numbers []string) int {
 	return sum
 }
 
+// Main function
 func main() {
 	fileInput := helpers.GetInput("./input.txt")
 

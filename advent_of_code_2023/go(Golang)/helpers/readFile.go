@@ -8,7 +8,7 @@ import (
 
 // bufio implementation - read input file
 func GetInput(path string) []string {
-	text, err := os.Open("./input.txt")
+	text, err := os.Open(path)
 	if err != nil {
 		log.Fatalln(err)
 	}

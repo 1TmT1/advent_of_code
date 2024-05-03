@@ -1,5 +1,6 @@
 package helpers
 
+// Reverse string ("hello" => "olleh")
 func ReverseString(line string) string {
 	var reversedString string
 
