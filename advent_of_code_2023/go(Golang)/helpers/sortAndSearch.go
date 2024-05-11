@@ -5,20 +5,28 @@ import (
 )
 
 // Find partition position
-func partition[T cmp.Ordered](slice []T, low, high int) ([]T, int) {
-	// Choose pivot based on middle value - check first, middle and last
-	pivotOptions := []T{slice[0], slice[len(slice)/2-1], slice[len(slice)-1]}
+func partition[T cmp.Ordered](slice []T, low, high int) int {
+	// Choose pivot based on middle value - check first, middle and last elements
+	pivotOptions := []T{slice[0], slice[low+(high-low)/2], slice[high]}
 	Insertionsort(pivotOptions)
 	pivot := pivotOptions[1] // After sorting median element will be in the middle [0, !1!, 2]
+
+	if slice[high] != pivot {
+		for i, value := range slice {
+			if value == pivot {
+				slice[i], slice[high] = slice[high], slice[i]
+			}
+		}
+	}
 
 	// Index of greater element
 	index := low - 1
 
 	// Compare each element with pivot
 	for i := low; i < high; i++ {
-		if slice[i] <= pivot {
+		if slice[i] < pivot {
 			// Current smaller than pivot -> swap it with greater element
-			index = index + 1
+			index++
 
 			// Make the swap
 			slice[index], slice[i] = slice[i], slice[index]
@@ -29,23 +37,26 @@ func partition[T cmp.Ordered](slice []T, low, high int) ([]T, int) {
 	slice[index+1], slice[high] = slice[high], slice[index+1]
 
 	// Return the position where the partition done
-	return slice, index + 1
+	return index + 1
 }
 
 // Implementation of the quicksort algorithm => complexity - time avg: O(nlogn) worst: O(n^2) # Note: chances are low since the pivot more probable to be close to median because how it gets chosen in partition function, space = O(1) | Not stable sorting algorithm which means relative order of equal items is not preserved
-func Quicksort[T cmp.Ordered](slice []T, low, high int) []T {
+func quicksort[T cmp.Ordered](slice []T, low, high int) {
 	if low < high {
 		// Find pivot where element smaller than pivot goes left, if larger then right
-		slice, pivot := partition(slice, low, high)
+		pivot := partition(slice, low, high)
 
 		// Recursive call on left side of the pivot
-		Quicksort(slice, low, pivot-1)
+		quicksort(slice, low, pivot-1)
 
 		// Recursive call on right side of the pivot
-		Quicksort(slice, pivot+1, high)
+		quicksort(slice, pivot+1, high)
 	}
+}
 
-	return slice
+// Call this to run the quick sort properly and get sorted slice
+func Quicksort[T cmp.Ordered](slice []T) {
+	quicksort(slice, 0, len(slice)-1)
 }
 
 // Heapify subtree of root in index i (reshape binary heap data structure from an array of elements)
@@ -109,6 +120,32 @@ func Introsort[T cmp.Ordered](slice []T, maxDepth int) {
 	} else if maxDepth == 0 {
 		Heapsort(slice)
 	} else {
-		Quicksort(slice, 0, len(slice)-1)
+		quicksort(slice, 0, len(slice)-1)
 	}
+
+}
+
+// Iterative implementation for better space complexity use case than recursive because of the call stack space => complexity - time = O(logn), space = O(1)
+func BinarySearch[T cmp.Ordered](slice []T, value T) int {
+	low := 0
+	high := len(slice) - 1
+	var middle int
+
+	for high >= low {
+		middle = low + (high-low)/2
+
+		// Value found returning its index
+		if slice[middle] == value {
+			return middle
+		}
+
+		if slice[middle] < value {
+			low = middle + 1
+		} else { // slice[middle] > value
+			high = middle - 1
+		}
+	}
+
+	// Value not found in the slice
+	return -1
 }
