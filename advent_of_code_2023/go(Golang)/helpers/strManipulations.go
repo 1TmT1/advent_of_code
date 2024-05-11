@@ -1,7 +1,9 @@
 package helpers
 
 import (
+	"fmt"
 	"strconv"
+	"strings"
 )
 
 // Reverse string ("hello" => "olleh")
@@ -24,4 +26,21 @@ func AddNumberToSumAfterConvertion(strNumber string) int {
 	}
 
 	return num
+}
+
+// Convert slice of strings to slice of integers
+func ConvertStringToIntegerSlice(slice []string) []int {
+	integers := make([]int, len(slice))
+
+	for i, value := range slice {
+		number, err := strconv.Atoi(strings.TrimSpace(value))
+		if err != nil {
+			fmt.Println(err)
+			return []int{}
+		}
+
+		integers[i] = number
+	}
+
+	return integers
 }
